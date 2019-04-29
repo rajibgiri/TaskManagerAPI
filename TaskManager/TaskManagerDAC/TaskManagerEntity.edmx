@@ -4,31 +4,31 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TaskManagerDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TaskManagerDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ParentTaskTab">
           <Key>
             <PropertyRef Name="Parent_ID" />
           </Key>
-          <Property Name="Parent_ID" Type="int" Nullable="false" />
+          <Property Name="Parent_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Parent_Task" Type="varchar" MaxLength="5000" />
         </EntityType>
         <EntityType Name="TaskTab">
           <Key>
             <PropertyRef Name="Task_ID" />
           </Key>
-          <Property Name="Task_ID" Type="int" Nullable="false" />
+          <Property Name="Task_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Parent_ID" Type="int" />
           <Property Name="Task" Type="varchar" MaxLength="5000" />
           <Property Name="Start_Date" Type="date" />
           <Property Name="End_Date" Type="date" />
           <Property Name="Priority" Type="int" />
+          <Property Name="IsClosed" Type="bit" />
         </EntityType>
         <EntityContainer Name="TaskManagerDBModelStoreContainer">
           <EntitySet Name="ParentTaskTab" EntityType="Self.ParentTaskTab" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaskTab" EntityType="Self.TaskTab" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TaskManagerDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -49,6 +49,7 @@
           <Property Name="Start_Date" Type="DateTime" Precision="0" />
           <Property Name="End_Date" Type="DateTime" Precision="0" />
           <Property Name="Priority" Type="Int32" />
+          <Property Name="IsClosed" Type="Boolean" />
         </EntityType>
         <EntityContainer Name="TaskManagerDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ParentTaskTabs" EntityType="Self.ParentTaskTab" />
@@ -71,6 +72,7 @@
           <EntitySetMapping Name="TaskTabs">
             <EntityTypeMapping TypeName="TaskManagerDBModel.TaskTab">
               <MappingFragment StoreEntitySet="TaskTab">
+                <ScalarProperty Name="IsClosed" ColumnName="IsClosed" />
                 <ScalarProperty Name="Task_ID" ColumnName="Task_ID" />
                 <ScalarProperty Name="Parent_ID" ColumnName="Parent_ID" />
                 <ScalarProperty Name="Task" ColumnName="Task" />
