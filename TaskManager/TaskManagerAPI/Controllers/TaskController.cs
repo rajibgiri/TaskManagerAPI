@@ -11,11 +11,49 @@ namespace TaskManagerAPI.Controllers
     public class TaskController : ApiController
     {
         // GET: api/Task
-        public IEnumerable<TaskTab> Get()
+        public IEnumerable<TaskClass> Get()
         {
+            List<TaskClass> tskCls = new List<TaskClass>();
             using (TaskManagerDBEntities TskEntity = new TaskManagerDBEntities())
             {
-                return TskEntity.TaskTabs.ToList();
+                //var abc = TskEntity.TaskTabs.ToList().Join();
+                //TskEntity.TaskTabs.Select(x=> new TaskClass() { TaskID = x.Task_ID,Task = x.Task, ParentID = x.Parent_ID, } )
+                //var data = from tsk in TskEntity.TaskTabs.ToList()
+                //           join parent in TskEntity.ParentTaskTabs.ToList()
+                //           on tsk.Parent_ID equals parent.Parent_ID into taskGroup
+                //           from item in taskGroup.DefaultIfEmpty()
+                //           select new 
+                //           {
+                //               TaskID = tsk.Task_ID,
+                //               Task = tsk.Task,
+                //               ParentTask = item.Parent_Task!=null? item.Parent_Task:null,
+                //               ParentID = item.Parent_ID,
+                //               Priority = tsk.Priority,
+                //               StartDate = tsk.Start_Date,
+                //               EndDate = tsk.End_Date,
+                //               IsClosed = tsk.IsClosed
+                //           };
+
+                foreach (var task in TskEntity.TaskTabs)
+                {
+                    var tsk = new TaskClass();
+                    tsk.TaskID = task.Task_ID;
+                    tsk.Task = task.Task;
+                    tsk.Priority = task.Priority;
+                    tsk.StartDate = task.Start_Date;
+                    tsk.EndDate = task.End_Date;
+                    tsk.IsClosed = task.IsClosed;
+
+                    if (task.Parent_ID != null || task.Parent_ID.ToString().Trim() != "")
+                    {
+                        tsk.ParentTask = TskEntity.ParentTaskTabs.Where(x => x.Parent_ID == task.Parent_ID).Select(a => a.Parent_Task).SingleOrDefault();
+                        tsk.ParentID = (int)task.Parent_ID;
+                    }
+                    tskCls.Add(tsk);
+                }
+
+
+                return tskCls;
             } 
         }
 
