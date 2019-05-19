@@ -5,17 +5,21 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using TaskManagerDAC;
+using System.Web.Http.Cors;
 
 namespace TaskManagerAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class TaskController : ApiController
     {
         // GET: api/Task
         public IEnumerable<TaskClass> Get()
         {
+
             List<TaskClass> tskCls = new List<TaskClass>();
             using (TaskManagerDBEntities TskEntity = new TaskManagerDBEntities())
             {
+                #region deadcode-1
                 //var abc = TskEntity.TaskTabs.ToList().Join();
                 //TskEntity.TaskTabs.Select(x=> new TaskClass() { TaskID = x.Task_ID,Task = x.Task, ParentID = x.Parent_ID, } )
                 //var data = from tsk in TskEntity.TaskTabs.ToList()
@@ -32,7 +36,8 @@ namespace TaskManagerAPI.Controllers
                 //               StartDate = tsk.Start_Date,
                 //               EndDate = tsk.End_Date,
                 //               IsClosed = tsk.IsClosed
-                //           };
+                //           }; 
+                #endregion
 
                 foreach (var task in TskEntity.TaskTabs)
                 {
@@ -53,7 +58,7 @@ namespace TaskManagerAPI.Controllers
                 }
 
 
-                return tskCls;
+                return tskCls.ToList();
             } 
         }
 
@@ -67,7 +72,8 @@ namespace TaskManagerAPI.Controllers
         }
 
         // POST: api/Task
-        public HttpResponseMessage Post([FromBody]TaskClass task)
+        [HttpPost]
+        public HttpResponseMessage Post(TaskClass task)
         {
             try
             {
@@ -117,22 +123,22 @@ namespace TaskManagerAPI.Controllers
         }
 
         // PUT: api/Task/5
-        public HttpResponseMessage Put(int id, [FromBody]TaskClass task)
+        public HttpResponseMessage Put(TaskClass task)
         {
             try
             {
                 using (TaskManagerDBEntities tskEntity = new TaskManagerDBEntities ())
                 {
                     //Checking if we are try to update an existing Task
-                    var entity = tskEntity.TaskTabs.FirstOrDefault(x => x.Task_ID == id);
+                    var entity = tskEntity.TaskTabs.FirstOrDefault(x => x.Task_ID == task.TaskID);
                     if (entity ==null)
                     {
                         return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Task Not Found");
                     }
                     else
                     {
-                        //In case parent Task Name modified 
-                        if (task.ParentTask != null || task.ParentTask.Trim()!="")
+                        //In case parent Task Name modified || task.ParentTask.Trim()!=""
+                        if (task.ParentTask != null )
                         {
                             //If the modiefied Parent task already exist in ParentTask Table
                             var parentEntity = tskEntity.ParentTaskTabs.FirstOrDefault(x => x.Parent_Task == task.ParentTask);
@@ -195,8 +201,29 @@ namespace TaskManagerAPI.Controllers
         }
 
         // DELETE: api/Task/5
-        public void Delete(int id)
+        public HttpResponseMessage Delete(int id)
         {
+            try
+            {
+                using (TaskManagerDBEntities tskEntity = new TaskManagerDBEntities())
+                {
+                    var entity = tskEntity.TaskTabs.FirstOrDefault(x => x.Task_ID == id);
+                    if (entity == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Task Not Found");
+                    }
+                    else
+                    {
+                        tskEntity.TaskTabs.Remove(entity);
+                        tskEntity.SaveChanges();
+                        return Request.CreateResponse(HttpStatusCode.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
         }
     }
 
